@@ -16,7 +16,6 @@ import (
 
 	"github.com/gocql/gocql"
 	"github.com/gocql/gocql/scyllacloud"
-	"github.com/hailocab/go-hostpool"
 	"github.com/pkg/errors"
 	. "github.com/scylladb/scylla-bench/pkg/workloads"
 	"github.com/scylladb/scylla-bench/random"
@@ -633,16 +632,7 @@ func main() {
 }
 
 func newHostSelectionPolicy(policy string, hosts []string) (gocql.HostSelectionPolicy, error) {
-	switch policy {
-	case "round-robin":
-		return gocql.RoundRobinHostPolicy(), nil
-	case "host-pool":
-		return gocql.HostPoolHostPolicy(hostpool.New(hosts)), nil
-	case "token-aware":
-		return gocql.TokenAwareHostPolicy(gocql.RoundRobinHostPolicy()), nil
-	default:
-		return nil, fmt.Errorf("unknown host selection policy, %s", policy)
-	}
+        return gocql.TokenAwareHostPolicy(gocql.RackAwareRoundRobinPolicy("datacenter1", "rack1")), nil
 }
 
 func setResultsConfiguration() {
